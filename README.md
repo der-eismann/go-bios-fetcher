@@ -45,12 +45,12 @@ Example:
 date = 2018-10-30T15:00:00+01:00
 
 [[devices]]
-  enabled = 1                                                                                                                                # Exclude entry from being updated
-  vendor = "Lenovo"                                                                                                                          # Define which module to use
-  model = "ThinkPad T480s"                                                                                                                   # Just a label, no real use
-  url = "https://pcsupport.lenovo.com/de/de/products/laptops-and-netbooks/thinkpad-t-series-laptops/thinkpad-t480s-type-20l7-20l8/downloads" # Website to get the info from
-  version = "1.26"                                                                                                                           # Latest version, set by the program
-  download = "https://download.lenovo.com/pccbbs/mobiles/n22uj10w.exe"                                                                       # Link to latest version, set by program
+  enabled = 1                                                 # Exclude entry from being updated
+  vendor = "Lenovo"                                           # Define which module to use
+  model = "ThinkPad T480s"                                    # Just a label, no real use
+  url = "https://pcsupport.lenovo.com/...20l7-20l8/downloads" # Website to get the info from
+  version = "1.26"                                            # Latest version, set by the program
+  download = "https://download.lenovo.com/.../n22uj10w.exe"   # Link to latest version, set by program
 
 [[devices]]
   enabled = 0
