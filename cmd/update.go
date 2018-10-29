@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/der-eismann/bios-fetcher/vendors/lenovo"
+	"github.com/der-eismann/go-bios-fetcher/vendors/lenovo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

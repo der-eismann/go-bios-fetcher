@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/der-eismann/bios-fetcher/cmd"
+import "github.com/der-eismann/go-bios-fetcher/cmd"
 
 func main() {
 	cmd.Execute()
