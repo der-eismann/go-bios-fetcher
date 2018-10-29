@@ -22,7 +22,6 @@ import (
     "github.com/spf13/viper"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
     Use:   "bios-fetcher",
     Short: "A brief description of your application",
@@ -34,8 +33,6 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
     if err := rootCmd.Execute(); err != nil {
         fmt.Println(err)
