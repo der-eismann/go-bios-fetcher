@@ -1,0 +1,15 @@
+date = 2018-10-30T15:00:00+01:00
+
+[[devices]]
+  enabled = 1
+  vendor = "Lenovo"
+  model = "ThinkPad T480s"
+  url = "https://pcsupport.lenovo.com/de/de/products/laptops-and-netbooks/thinkpad-t-series-laptops/thinkpad-t480s-type-20l7-20l8/downloads"
+  version = "1.26"
+  download = "https://download.lenovo.com/pccbbs/mobiles/n22uj10w.exe"
+
+[[devices]]
+  enabled = 0
+  vendor = "Lenovo"
+  model = "ThinkPad T470"
+  url = "https://pcsupport.lenovo.com/de/de/products/laptops-and-netbooks/thinkpad-t-series-laptops/thinkpad-t470/downloads"
