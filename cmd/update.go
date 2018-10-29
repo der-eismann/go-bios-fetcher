@@ -63,7 +63,7 @@ func update() {
 
             if _, ok := device["version"]; ok {
                 if strings.Compare(device["version"].(string), newVersion) != 0 {
-                    fmt.Printf("Neue Version für %s: Von %s auf %s aktualisiert: %s!\n", device["model"], device["version"], newVersion)
+                    fmt.Printf("Neue Version für %s: Von %s auf %s aktualisiert!\n", device["model"], device["version"], newVersion)
                 } else {
                     fmt.Printf("%s: BIOS %s ist auf dem aktuellen Stand!\n", device["model"], device["version"])
                 }
