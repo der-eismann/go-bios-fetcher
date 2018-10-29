@@ -1,7 +1,7 @@
 # go-bios-fetcher
 Simple tool to fetch the latest BIOS version from multiple hardware vendors
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/der-eismann/go-bios-fetcher)](https://goreportcard.com/report/github.com/der-eismann/go-bios-fetcher) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Go Report Card](https://goreportcard.com/badge/github.com/der-eismann/go-bios-fetcher)](https://goreportcard.com/report/github.com/der-eismann/go-bios-fetcher) [![License](https://img.shields.io/github/license/der-eismann/go-bios-fetcher.svg)](./LICENSE)
 
 ## Motivation
 
