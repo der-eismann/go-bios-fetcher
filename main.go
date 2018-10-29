@@ -17,5 +17,5 @@ package main
 import "github.com/der-eismann/bios-fetcher/cmd"
 
 func main() {
-    cmd.Execute()
+	cmd.Execute()
 }

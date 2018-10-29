@@ -15,5 +15,5 @@
 package vendors
 
 import (
-    "github.com/der-eismann/bios-fetcher/vendors/lenovo"
+	"github.com/der-eismann/bios-fetcher/vendors/lenovo"
 )
