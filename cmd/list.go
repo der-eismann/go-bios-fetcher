@@ -46,6 +46,9 @@ func list() {
 
 	for _, devicesInterface := range currentData.([]interface{}) {
 		device := devicesInterface.(map[string]interface{})
+		if device["enabled"] != int64(1) {
+			continue
+		}
 		fmt.Printf("%s %s:\n", device["vendor"], device["model"])
 		fmt.Printf("  - BIOS: %s\n", device["version"])
 		fmt.Printf("  - Download: %s\n\n", device["download"])
