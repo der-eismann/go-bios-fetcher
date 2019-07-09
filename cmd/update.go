@@ -1,4 +1,4 @@
-// Copyright © 2018 Philipp Trulson <philipp@trulson.de>
+// Copyright © 2019 Philipp Trulson <philipp@trulson.de>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,70 +15,45 @@
 package cmd
 
 import (
-	"fmt"
-	"strings"
+	"context"
+	"io/ioutil"
 	"time"
 
-	"github.com/der-eismann/go-bios-fetcher/vendors/lenovo"
+	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
+	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/lenovo"
+
+	"github.com/rebuy-de/rebuy-go-sdk/cmdutil"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
-var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update all entries defined in config.toml",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		update()
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(updateCmd)
-}
-
 func update() {
-	currentData := viper.Get("devices")
+	config, err := lib.ReadConfig()
+	cmdutil.Must(err)
 
-	for i, devicesInterface := range currentData.([]interface{}) {
-		device := devicesInterface.(map[string]interface{})
-		newVersion := ""
-		newFile := ""
+	config.Devices[0] = lenovo.GetLatestFiles(config.Devices[0])
+	config.LastUpdated = time.Now().Format("02.01.2006 15:04")
 
-		// Only update devices that are enabled
-		enabled := !(device["enabled"].(int64) == 0)
-		if enabled {
-			switch device["vendor"] {
-			case "Lenovo":
-				newVersion, newFile = lenovo.GetLatestBios(device["url"].(string))
-			default:
-				fmt.Println("No compatible vendor defined!")
-				continue
-			}
+	marshalled, err := yaml.Marshal(&config)
+	cmdutil.Must(err)
+	err = ioutil.WriteFile("config.yaml", marshalled, 0644)
+	cmdutil.Must(err)
 
-			if _, ok := device["version"]; ok {
-				if strings.Compare(device["version"].(string), newVersion) != 0 {
-					fmt.Printf("Neue Version für %s: Von %s auf %s aktualisiert!\n", device["model"], device["version"], newVersion)
-				} else {
-					fmt.Printf("%s: BIOS %s ist auf dem aktuellen Stand!\n", device["model"], device["version"])
-				}
-			} else {
-				fmt.Printf("Aktuelles BIOS für %s: Version %s zum Download verfügbar!\n", device["model"], newVersion)
-			}
+}
 
-			currentData.([]interface{})[i].(map[string]interface{})["version"] = newVersion
-			currentData.([]interface{})[i].(map[string]interface{})["download"] = newFile
-		}
-	}
+type UpdateApp struct {
+}
 
-	viper.Set("date", time.Now())
-	err := viper.WriteConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error writing config file: %s \nConfig file: %s\n", err, viper.ConfigFileUsed()))
-	}
+func (app *UpdateApp) Run(ctx context.Context, cmd *cobra.Command, args []string) {
+	logrus.Printf("Hello!")
+	update()
+}
+
+func NewUpdateCommand() *cobra.Command {
+	app := new(UpdateApp)
+	cmd := cmdutil.NewCommand(app)
+	cmd.Use = "update"
+	cmd.Short = "Updates all entries in the config.yaml"
+	return cmd
 }
