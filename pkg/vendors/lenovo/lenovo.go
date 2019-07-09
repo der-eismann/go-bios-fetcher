@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/pierrec/lz4"
+	"github.com/sirupsen/logrus"
 
 	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
 )
@@ -91,11 +92,14 @@ func GetLatestFiles(device lib.Device) lib.Device {
 		for _, download := range parsedJSON.DownloadItems {
 			if strings.Contains(download.Title, filter.Filter) {
 				for _, file := range download.Files {
-					if file.TypeString == "EXE" {
+					logrus.Debugf("%#v", file)
+					if file.TypeString == "EXE" || file.TypeString == "zip" {
+						if strings.Contains(filter.Filter, "BIOS") && (strings.Contains(file.Name, "setting") || file.TypeString == "zip") {
+							continue
+						}
 						device.Downloads[filterPos].Version = file.Version
 						device.Downloads[filterPos].Link = file.URL
-						date := time.Unix(file.Date.Unix/1000, 0)
-						device.Downloads[filterPos].Date = date.Format("02.01.2006")
+						device.Downloads[filterPos].Date = time.Unix(file.Date.Unix/1000, 0).Format("02.01.2006")
 						break
 					}
 				}

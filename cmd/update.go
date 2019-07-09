@@ -32,21 +32,22 @@ func update() {
 	config, err := lib.ReadConfig()
 	cmdutil.Must(err)
 
-	config.Devices[0] = lenovo.GetLatestFiles(config.Devices[0])
+	for device := range config.Devices {
+		logrus.Printf("Downloading files for %s...", config.Devices[device].Name)
+		config.Devices[device] = lenovo.GetLatestFiles(config.Devices[device])
+	}
 	config.LastUpdated = time.Now().Format("02.01.2006 15:04")
 
 	marshalled, err := yaml.Marshal(&config)
 	cmdutil.Must(err)
 	err = ioutil.WriteFile("config.yaml", marshalled, 0644)
 	cmdutil.Must(err)
-
 }
 
 type UpdateApp struct {
 }
 
 func (app *UpdateApp) Run(ctx context.Context, cmd *cobra.Command, args []string) {
-	logrus.Printf("Hello!")
 	update()
 }
 

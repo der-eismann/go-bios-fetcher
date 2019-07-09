@@ -1,0 +1,26 @@
+lastupdated: 01.07.2019 18:00
+devices:
+- name: ThinkPad T480s
+  vendor: Lenovo
+  url: https://pcsupport.lenovo.com/de/de/products/laptops-and-netbooks/thinkpad-t-series-laptops/thinkpad-t480s-type-20l7-20l8/downloads
+  downloads:
+  - filter: BIOS Update Utility
+  - filter: Intel Management Engine 11.8 Firmware
+  - filter: Thunderbolt Firmware
+  - filter: Fibocom L830-EB Wireless WAN Firmware
+  - filter: Solid State Drive and Hard Disk Drive Firmware
+  - filter: TrackPoint Firmware
+  - filter: ThinkPad Docking Station Firmware
+- name: IdeaPad V330-14IKB
+  vendor: Lenovo
+  url: https://pcsupport.lenovo.com/de/de/products/laptops-and-netbooks/lenovo-v-series-laptops/v330-14ikb/downloads
+  downloads:
+  - filter: BIOS Update
+  - filter: Intel Management Engine 11.8 Firmware
+- name: ThinkStation M710q
+  vendor: Lenovo
+  url: https://pcsupport.lenovo.com/de/de/products/desktops-and-all-in-ones/thinkcentre-m-series-desktops/thinkcentre-m710q/downloads
+  downloads:
+  - filter: BIOS update
+  - filter: Intel Management Engine Firmware
+  - filter: Lenovo Super IO (SIO) Firmware

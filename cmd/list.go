@@ -24,12 +24,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func list() {
+func list(showUrl bool) {
 	config, err := lib.ReadConfig()
 	cmdutil.Must(err)
 
+	fmt.Printf("Last updated at %s\n\n", config.LastUpdated)
 	for _, device := range config.Devices {
-		fmt.Printf("Last updated at %s\n\n", config.LastUpdated)
 		fmt.Println(device.Name)
 		var lengthName, lengthVersion int
 		for _, download := range device.Downloads {
@@ -42,17 +42,27 @@ func list() {
 		}
 		for _, download := range device.Downloads {
 			fmt.Printf("%-[2]*[1]s | %-[4]*[3]s | %[5]s\n", download.Filter, lengthName, download.Version, lengthVersion, download.Date)
-			fmt.Printf("  - Download: %s\n", download.Link)
-			fmt.Printf("  - Readme:   %s\n\n", strings.Replace(download.Link, "exe", "txt", 1))
+			if showUrl {
+				fmt.Printf("  - Download: %s\n", download.Link)
+				fmt.Printf("  - Readme:   %s\n\n", strings.Replace(download.Link, "exe", "txt", 1))
+			}
 		}
+		fmt.Println("")
 	}
 }
 
 type ListApp struct {
+	ShowUrl bool
 }
 
 func (app *ListApp) Run(ctx context.Context, cmd *cobra.Command, args []string) {
-	list()
+	list(app.ShowUrl)
+}
+
+func (app *ListApp) Bind(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolVar(
+		&app.ShowUrl, "show-url", false,
+		`Set to true to show the full download URLs.`)
 }
 
 func NewListCommand() *cobra.Command {
