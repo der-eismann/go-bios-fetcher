@@ -1,22 +1,25 @@
 package lenovo
 
 type downloads struct {
-	DownloadItems []download
+	Message string `json:"message"`
+	Body    struct {
+		DownloadItems []struct {
+			Files []struct {
+				Name       string `json:"Name"`
+				TypeString string `json:"TypeString"`
+				Version    string `json:"Version"`
+				URL        string `json:"URL"`
+				Date       struct {
+					Unix int64 `json:"Unix"`
+				} `json:"Date"`
+			} `json:"Files"`
+			Title string `json:"Title"`
+		} `json:"DownloadItems"`
+	} `json:"body"`
 }
 
-type download struct {
-	Title string
-	Files []file
-}
-
-type file struct {
-	Name       string
-	TypeString string
-	Version    string
-	URL        string
-	Date       date
-}
-
-type date struct {
-	Unix int64
+type windowConfig struct {
+	DynamicItems struct {
+		ProductID string `json:"PRODUCTID"`
+	} `json:"DynamicItems"`
 }

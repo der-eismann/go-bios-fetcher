@@ -15,66 +15,60 @@
 package lenovo
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pierrec/lz4"
+	"github.com/rebuy-de/rebuy-go-sdk/cmdutil"
 	"github.com/sirupsen/logrus"
 
 	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
 )
 
+func GetWebsiteContent(website string) ([]byte, error) {
+	logrus.Debugf("Downloading %s", website)
+	// Downloading the given website
+	cookieJar, _ := cookiejar.New(nil)
+	httpClient := http.Client{
+		Jar: cookieJar,
+	}
+	response, err := httpClient.Get(website)
+	cmdutil.Must(err)
+	defer response.Body.Close()
+
+	// Saving the website as a byte array
+	bodyRead, err := ioutil.ReadAll(response.Body)
+	cmdutil.Must(err)
+
+	return bodyRead, nil
+}
+
 // GetDownloadJSON is downloading all the information about the available
 // downloads from the given Lenovo support website
 func GetDownloadJSON(website string) ([]byte, error) {
-	// Downloading the given website
-	response, err := http.Get(website)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
+	downloadPage, err := GetWebsiteContent(website)
+	cmdutil.Must(err)
 
-	// Saving the website as a string
-	bodyRead, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	bodyString := string(bodyRead)
+	// Parsing the productID within the website
+	regex := regexp.MustCompile(`(?m)var config = window\.config \|\| (.*);`)
+	result := regex.FindStringSubmatch(string(downloadPage))
+	windowConfigJSON := windowConfig{}
+	json.Unmarshal([]byte(result[1]), &windowConfigJSON)
 
-	// Parsing the encoded JSON within the website
-	regex := regexp.MustCompile(`ds_downloads.*content":"(?P<content>.*)","originLength":(?P<length>.*)}`)
-	result := regex.FindStringSubmatch(bodyString)
-	content := result[1]
-	length, err := strconv.Atoi(result[2])
-	if err != nil {
-		return nil, err
-	}
+	actualDownloads, err := GetWebsiteContent("https://pcsupport.lenovo.com/de/de/api/v4/downloads/drivers?productId=" + windowConfigJSON.DynamicItems.ProductID)
+	cmdutil.Must(err)
+	logrus.Debugf("%s", actualDownloads)
 
-	// Decoding from Base64 to LZ4 encoded data
-	lz4Data, err := base64.StdEncoding.DecodeString(content)
-	if err != nil {
-		return nil, err
-	}
-
-	// Decoding the JSON from LZ4
-	decodedData := make([]byte, length)
-	_, err = lz4.UncompressBlock(lz4Data, decodedData)
-	if err != nil {
-		return nil, err
-	}
-
-	return decodedData, nil
+	return actualDownloads, nil
 }
 
 func GetMockJSON() []byte {
-	file, _ := os.Open("downloads.json")
+	file, _ := os.Open("drivers.json")
 	content, _ := ioutil.ReadAll(file)
 	return content
 }
@@ -82,14 +76,17 @@ func GetMockJSON() []byte {
 // GetLatestFiles polls the given website and returns version & link to file
 func GetLatestFiles(device lib.Device) lib.Device {
 
-	decodedData, _ := GetDownloadJSON(device.URL)
+	decodedData, err := GetDownloadJSON(device.URL)
+	if err != nil {
+		logrus.Println(err)
+	}
 	//decodedData := GetMockJSON()
 
 	parsedJSON := downloads{}
 	json.Unmarshal(decodedData, &parsedJSON)
 
 	for filterPos, filter := range device.Downloads {
-		for _, download := range parsedJSON.DownloadItems {
+		for _, download := range parsedJSON.Body.DownloadItems {
 			if strings.Contains(download.Title, filter.Filter) {
 				for _, file := range download.Files {
 					logrus.Debugf("%#v", file)
@@ -100,12 +97,15 @@ func GetLatestFiles(device lib.Device) lib.Device {
 						device.Downloads[filterPos].Version = file.Version
 						device.Downloads[filterPos].Link = file.URL
 						device.Downloads[filterPos].Date = time.Unix(file.Date.Unix/1000, 0).Format("02.01.2006")
-						break
+					}
+					if file.TypeString == "TXT README" {
+						device.Downloads[filterPos].Readme = file.URL
 					}
 				}
 			}
 		}
 	}
+	logrus.Debugf("%#v", device)
 
 	return device
 }

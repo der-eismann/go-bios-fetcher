@@ -22,8 +22,9 @@ type Device struct {
 type Download struct {
 	Filter  string `yaml:"filter"`
 	Version string `yaml:"version"`
-	Link    string `yaml:"link"`
 	Date    string `yaml:"date"`
+	Link    string `yaml:"link"`
+	Readme  string `yaml:"readme"`
 }
 
 func ReadConfig() (Config, error) {

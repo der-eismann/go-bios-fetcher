@@ -1,5 +1,7 @@
 module github.com/der-eismann/go-bios-fetcher
 
+go 1.13
+
 require (
 	github.com/pierrec/lz4 v2.0.5+incompatible
 	github.com/rebuy-de/rebuy-go-sdk v1.6.0
