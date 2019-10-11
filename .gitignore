@@ -1,3 +1,4 @@
-*.exe
-config.toml
-go-bios-fetcher
+config.yaml
+dist/*
+vendor/*
+drivers.json

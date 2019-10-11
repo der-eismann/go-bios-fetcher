@@ -1,4 +1,4 @@
-// Copyright © 2018 Philipp Trulson <philipp@trulson.de>
+// Copyright © 2019 Philipp Trulson <philipp@trulson.de>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,16 @@
 
 package main
 
-import "github.com/der-eismann/go-bios-fetcher/cmd"
+import (
+	"github.com/rebuy-de/rebuy-go-sdk/cmdutil"
+	"github.com/sirupsen/logrus"
+
+	"github.com/der-eismann/go-bios-fetcher/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	defer cmdutil.HandleExit()
+	if err := cmd.NewRootCommand().Execute(); err != nil {
+		logrus.Fatal(err)
+	}
 }
