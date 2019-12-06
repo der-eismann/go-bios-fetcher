@@ -43,6 +43,7 @@ func list(showUrl bool) {
 
 	for _, device := range config.Devices {
 		fmt.Println(device.Name)
+		fmt.Println("------------------------------------------")
 		for _, download := range device.Downloads {
 			fmt.Printf("%-[2]*[1]s | %-[4]*[3]s | %[5]s | %[6]s\n", download.Filter, lengthName, download.Version, lengthVersion, download.Date, download.Link)
 			if showUrl {
@@ -50,7 +51,7 @@ func list(showUrl bool) {
 				fmt.Printf("  - Readme:   %s\n\n", strings.Replace(download.Link, "exe", "txt", 1))
 			}
 		}
-		fmt.Println("")
+		fmt.Printf("\n\n")
 	}
 }
 
