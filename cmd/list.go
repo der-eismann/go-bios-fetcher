@@ -27,11 +27,10 @@ import (
 func list(showUrl bool) {
 	config, err := lib.ReadConfig()
 	cmdutil.Must(err)
+	lengthName, lengthVersion := 0, 0
 
 	fmt.Printf("Last updated at %s\n\n", config.LastUpdated)
 	for _, device := range config.Devices {
-		fmt.Println(device.Name)
-		var lengthName, lengthVersion int
 		for _, download := range device.Downloads {
 			if len(download.Filter) > lengthName {
 				lengthName = len(download.Filter)
@@ -40,8 +39,12 @@ func list(showUrl bool) {
 				lengthVersion = len(download.Version)
 			}
 		}
+	}
+
+	for _, device := range config.Devices {
+		fmt.Println(device.Name)
 		for _, download := range device.Downloads {
-			fmt.Printf("%-[2]*[1]s | %-[4]*[3]s | %[5]s\n", download.Filter, lengthName, download.Version, lengthVersion, download.Date)
+			fmt.Printf("%-[2]*[1]s | %-[4]*[3]s | %[5]s | %[6]s\n", download.Filter, lengthName, download.Version, lengthVersion, download.Date, download.Link)
 			if showUrl {
 				fmt.Printf("  - Download: %s\n", download.Link)
 				fmt.Printf("  - Readme:   %s\n\n", strings.Replace(download.Link, "exe", "txt", 1))

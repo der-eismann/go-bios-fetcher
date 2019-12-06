@@ -1,5 +1,3 @@
-//https://www.asus.com/support/api/product.asmx/GetPDDrivers?cpu=&osid=45&website=de&pdhashedid=xlQ4iKfiVURLAgq3&model=ROG%20STRIX%20X570-E%20GAMING&callback=supportpdpage
-//https://www.asus.com/support/api/product.asmx/GetPDBIOS?website=de&pdhashedid=xlQ4iKfiVURLAgq3&model=ROG%20STRIX%20X570-E%20GAMING&cpu=&callback=supportpdpage
 // Copyright © 2019 Philipp Trulson <philipp@trulson.de>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,6 +109,7 @@ Loop:
 			}
 		}
 	}
+	logrus.Debugf("%#v", device)
 
 	return device
 }

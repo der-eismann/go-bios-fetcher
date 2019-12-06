@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
+	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/amd"
 	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/asus"
 	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/lenovo"
 
@@ -40,6 +41,8 @@ func update() {
 			config.Devices[device] = lenovo.GetLatestFiles(config.Devices[device])
 		case "Asus":
 			config.Devices[device] = asus.GetLatestFiles(config.Devices[device])
+		case "AMD":
+			config.Devices[device] = amd.GetLatestFiles(config.Devices[device])
 		}
 
 	}
