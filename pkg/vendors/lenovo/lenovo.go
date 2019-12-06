@@ -16,6 +16,7 @@ package lenovo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -24,50 +25,70 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rebuy-de/rebuy-go-sdk/cmdutil"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
 )
 
-func GetWebsiteContent(website string) ([]byte, error) {
+func getWebsiteContent(website string) ([]byte, error) {
 	logrus.Debugf("Downloading %s", website)
-	// Downloading the given website
-	cookieJar, _ := cookiejar.New(nil)
+	// Creating a cookie jar - the Lenovo website needs cookies
+	cookieJar, err := cookiejar.New(nil)
+	if err != nil {
+		return []byte{}, errors.WithStack(err)
+	}
 	httpClient := http.Client{
 		Jar: cookieJar,
 	}
+
+	// Downloading the given website
 	response, err := httpClient.Get(website)
-	cmdutil.Must(err)
+	if err != nil {
+		return []byte{}, errors.WithStack(err)
+	}
 	defer response.Body.Close()
 
 	// Saving the website as a byte array
 	bodyRead, err := ioutil.ReadAll(response.Body)
-	cmdutil.Must(err)
+	if err != nil {
+		return []byte{}, errors.WithStack(err)
+	}
 
 	return bodyRead, nil
 }
 
-// GetDownloadJSON is downloading all the information about the available
-// downloads from the given Lenovo support website
-func GetDownloadJSON(website string) ([]byte, error) {
-	downloadPage, err := GetWebsiteContent(website)
-	cmdutil.Must(err)
+func getDownloadJSON(website string) ([]byte, error) {
+	// Load the support site of the device
+	downloadPage, err := getWebsiteContent(website)
+	if err != nil {
+		return []byte{}, errors.WithStack(err)
+	}
 
 	// Parsing the productID within the website
 	regex := regexp.MustCompile(`(?m)var config = window\.config \|\| (.*);`)
 	result := regex.FindStringSubmatch(string(downloadPage))
 	windowConfigJSON := windowConfig{}
-	json.Unmarshal([]byte(result[1]), &windowConfigJSON)
+	if len(result) > 1 {
+		err = json.Unmarshal([]byte(result[1]), &windowConfigJSON)
+		if err != nil {
+			return []byte{}, errors.WithStack(err)
+		}
+	} else {
+		return []byte{}, errors.New("Regex couldn't find product ID")
+	}
 
-	actualDownloads, err := GetWebsiteContent("https://pcsupport.lenovo.com/de/de/api/v4/downloads/drivers?productId=" + windowConfigJSON.DynamicItems.ProductID)
-	cmdutil.Must(err)
-	logrus.Debugf("%s", actualDownloads)
+	// Dowload the JSON file with the actual downloads
+	logrus.Debugf("Using product ID %s for downloads...", windowConfigJSON.DynamicItems.ProductID)
+	actualDownloads, err := getWebsiteContent(fmt.Sprintf("https://pcsupport.lenovo.com/de/de/api/v4/downloads/drivers?productId=%s", windowConfigJSON.DynamicItems.ProductID))
+	if err != nil {
+		return []byte{}, errors.WithStack(err)
+	}
 
 	return actualDownloads, nil
 }
 
-func GetMockJSON() []byte {
+func getMockJSON() []byte {
 	file, _ := os.Open("drivers.json")
 	content, _ := ioutil.ReadAll(file)
 	return content
@@ -76,20 +97,22 @@ func GetMockJSON() []byte {
 // GetLatestFiles polls the given website and returns version & link to file
 func GetLatestFiles(device lib.Device) lib.Device {
 
-	decodedData, err := GetDownloadJSON(device.URL)
+	decodedData, err := getDownloadJSON(device.URL)
 	if err != nil {
-		logrus.Println(err)
+		logrus.Error(err)
 	}
-	//decodedData := GetMockJSON()
+	//decodedData := getMockJSON()
 
 	parsedJSON := downloads{}
-	json.Unmarshal(decodedData, &parsedJSON)
+	err = json.Unmarshal(decodedData, &parsedJSON)
+	if err != nil {
+		logrus.Error(err)
+	}
 
 	for filterPos, filter := range device.Downloads {
 		for _, download := range parsedJSON.Body.DownloadItems {
 			if strings.Contains(download.Title, filter.Filter) {
 				for _, file := range download.Files {
-					logrus.Debugf("%#v", file)
 					if file.TypeString == "EXE" || file.TypeString == "zip" {
 						if strings.Contains(filter.Filter, "BIOS") && (strings.Contains(file.Name, "setting") || file.TypeString == "zip") {
 							continue

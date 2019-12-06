@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/der-eismann/go-bios-fetcher/pkg/lib"
+	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/asus"
 	"github.com/der-eismann/go-bios-fetcher/pkg/vendors/lenovo"
 
 	"github.com/rebuy-de/rebuy-go-sdk/cmdutil"
@@ -34,7 +35,13 @@ func update() {
 
 	for device := range config.Devices {
 		logrus.Printf("Downloading files for %s...", config.Devices[device].Name)
-		config.Devices[device] = lenovo.GetLatestFiles(config.Devices[device])
+		switch config.Devices[device].Vendor {
+		case "Lenovo":
+			config.Devices[device] = lenovo.GetLatestFiles(config.Devices[device])
+		case "Asus":
+			config.Devices[device] = asus.GetLatestFiles(config.Devices[device])
+		}
+
 	}
 	config.LastUpdated = time.Now().Format("02.01.2006 15:04")
 
